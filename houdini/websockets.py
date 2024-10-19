@@ -23,8 +23,8 @@ class WebsocketWriter:
         await self.websocket.send(self.stack)
         self.stack = b''
 
-    async def close(self) -> None:
-        await self.websocket.close()
+    def close(self) -> None:
+        asyncio.create_task(self.websocket.close())
 
     def is_closing(self) -> bool:
         return self.websocket.state == State.CLOSING
