@@ -1,0 +1,69 @@
+from websockets import WebSocketClientProtocol
+from websockets.protocol import State
+from websockets.server import serve
+from houdini.penguin import Penguin
+
+import asyncio
+import logging
+
+class WebsocketWriter:
+    """Replacement for the `StreamWriter` class in asyncio"""
+    def __init__(self, websocket: WebSocketClientProtocol):
+        self.websocket = websocket
+        self.stack = b''
+
+    def write(self, data: bytes) -> None:
+        self.stack += data
+
+    async def drain(self) -> None:
+        if not self.stack:
+            return
+
+        await self.websocket.send(self.stack)
+        self.stack = b''
+
+    def close(self) -> None:
+        self.websocket.close()
+
+    def is_closing(self) -> bool:
+        return self.websocket.state == State.CLOSING
+    
+    def get_extra_info(self, name: str, default=None):
+        if name == 'peername':
+            return self.websocket.remote_address
+        return default
+
+class WebsocketReader:
+    """Replacement for the `StreamReader` class in asyncio"""
+    def __init__(self, websocket: WebSocketClientProtocol):
+        self.websocket = websocket
+        self.stack = b''
+
+    async def readuntil(self, separator: bytes) -> bytes:
+        # Check if stack has the separator
+        if separator in self.stack:
+            index = self.stack.index(separator)
+            data = self.stack[:index + len(separator)]
+            self.stack = self.stack[index + len(separator):]
+            return data
+
+        # Read from the websocket until the separator is found
+        self.stack += await self.websocket.recv()
+        return await self.readuntil(separator)
+
+async def websocket_handler(factory, websocket: WebSocketClientProtocol, path: str):
+    reader = WebsocketReader(websocket)
+    writer = WebsocketWriter(websocket)
+    penguin = Penguin(factory, reader, writer)
+    await penguin.run()
+
+def handler_wrapper(factory):
+    return lambda websocket, path: websocket_handler(factory, websocket, path)
+
+async def websocket_listener(factory, host: str, port: int) -> None:
+    handler = handler_wrapper(factory)
+    logger = logging.getLogger(__name__)
+
+    async with serve(handler, host, port):
+        logger.info(f'Websocket server listening on {host}:{port}')
+        await asyncio.Future()
