@@ -28,6 +28,11 @@ if __name__ == '__main__':
     parser.add_argument('-tz', '--timezone', action='store', default='America/Vancouver',
                         help='Server timezone')
 
+    websocket_group = parser.add_argument_group('websocket')
+    websocket_group.add_argument('-wp', '--websocket-port', action='store', default=6112, help='Websocket port',
+                                type=int)
+    websocket_group.add_argument('-wh', '--websocket-host', action='store', default='0.0.0.0', help='Websocket host')
+
     login_group = parser.add_argument_group('login')
     login_group.add_argument('--login-failure-limit', action='store', default=5, help='Limit before flood limit',
                              type=int)
