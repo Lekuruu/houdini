@@ -6,6 +6,7 @@ from houdini.penguin import Penguin
 
 import asyncio
 import logging
+import ssl
 
 class WebsocketWriter:
     """Replacement for the `StreamWriter` class in asyncio"""
@@ -70,7 +71,12 @@ async def websocket_listener(factory) -> None:
 
     host = factory.config.websocket_host
     port = factory.config.websocket_port
+    ssl_context = None
 
-    async with serve(handler, host, port):
+    if factory.config.websocket_certificate_path:
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_context.load_cert_chain(factory.config.websocket_certificate_path)
+
+    async with serve(handler, host, port, ssl=ssl_context):
         logger.info(f'Websocket server listening on {host}:{port}')
         await asyncio.Future()
