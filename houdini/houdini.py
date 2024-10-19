@@ -172,8 +172,9 @@ class Houdini:
 
         await self.plugins.setup(houdini.plugins)
 
-        listener = websockets.websocket_listener(self)
-        asyncio.create_task(listener)
+        if not self.config.disable_websocket:
+            listener = websockets.websocket_listener(self)
+            asyncio.create_task(listener)
 
         async with self.server:
             await self.server.serve_forever()

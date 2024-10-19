@@ -32,6 +32,7 @@ if __name__ == '__main__':
     websocket_group.add_argument('-wp', '--websocket-port', action='store', default=None, help='Websocket port',
                                 type=int)
     websocket_group.add_argument('-wh', '--websocket-host', action='store', default='0.0.0.0', help='Websocket host')
+    websocket_group.add_argument('-wd', '--disable-websocket', action='store_true', help='Disable websocket')
 
     login_group = parser.add_argument_group('login')
     login_group.add_argument('--login-failure-limit', action='store', default=5, help='Limit before flood limit',
