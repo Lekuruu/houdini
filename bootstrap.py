@@ -32,7 +32,7 @@ if __name__ == '__main__':
     websocket_group.add_argument('-wp', '--websocket-port', action='store', default=None, help='Websocket port',
                                 type=int)
     websocket_group.add_argument('-wh', '--websocket-host', action='store', default='0.0.0.0', help='Websocket host')
-    websocket_group.add_argument('-wd', '--disable-websocket', action='store_true', help='Disable websocket')
+    websocket_group.add_argument('-wd', '--disable-websocket', action='store_true', help='Disable websocket server')
     websocket_group.add_argument('-wc', '--websocket-certificate-path', action='store', default=None, help='Websocket certificate path (optional)')
 
     login_group = parser.add_argument_group('login')
