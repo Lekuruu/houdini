@@ -12,6 +12,7 @@ from houdini.data import db
 from houdini.data.permission import PermissionCollection
 from houdini.penguin import Penguin
 from houdini.spheniscidae import Spheniscidae
+from houdini import websockets
 
 try:
     import uvloop
@@ -170,6 +171,9 @@ class Houdini:
                                 'this may cause authentication issues!')
 
         await self.plugins.setup(houdini.plugins)
+
+        listener = websockets.websocket_listener(self)
+        asyncio.create_task(listener)
 
         async with self.server:
             await self.server.serve_forever()

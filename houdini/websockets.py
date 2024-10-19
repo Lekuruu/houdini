@@ -60,9 +60,12 @@ async def websocket_handler(factory, websocket: WebSocketClientProtocol, path: s
 def handler_wrapper(factory):
     return lambda websocket, path: websocket_handler(factory, websocket, path)
 
-async def websocket_listener(factory, host: str, port: int) -> None:
+async def websocket_listener(factory) -> None:
     handler = handler_wrapper(factory)
     logger = logging.getLogger(__name__)
+
+    host = factory.config.websocket_host
+    port = factory.config.websocket_port
 
     async with serve(handler, host, port):
         logger.info(f'Websocket server listening on {host}:{port}')
