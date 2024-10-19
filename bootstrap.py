@@ -29,7 +29,7 @@ if __name__ == '__main__':
                         help='Server timezone')
 
     websocket_group = parser.add_argument_group('websocket')
-    websocket_group.add_argument('-wp', '--websocket-port', action='store', default=6112, help='Websocket port',
+    websocket_group.add_argument('-wp', '--websocket-port', action='store', default=None, help='Websocket port',
                                 type=int)
     websocket_group.add_argument('-wh', '--websocket-host', action='store', default='0.0.0.0', help='Websocket host')
 
@@ -134,6 +134,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.port = args.port if args.port else 9875 if args.type == 'world' else 6112
+    args.websocket_port = args.websocket_port if args.websocket_port else args.port + 1000
     args.name = args.name if args.name else 'World' if args.type == 'world' else 'Login'
     args.lang = dict(en=Language.En, fr=Language.Fr, pt=Language.Pt,
                      es=Language.Es, de=Language.De, ru=Language.Ru).get(args.lang)
