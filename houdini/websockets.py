@@ -1,3 +1,4 @@
+from websockets.exceptions import ConnectionClosed
 from websockets import WebSocketClientProtocol
 from websockets.protocol import State
 from websockets.server import serve
@@ -22,8 +23,8 @@ class WebsocketWriter:
         await self.websocket.send(self.stack)
         self.stack = b''
 
-    def close(self) -> None:
-        self.websocket.close()
+    async def close(self) -> None:
+        await self.websocket.close()
 
     def is_closing(self) -> bool:
         return self.websocket.state == State.CLOSING
