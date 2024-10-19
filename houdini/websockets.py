@@ -41,16 +41,19 @@ class WebsocketReader:
         self.stack = b''
 
     async def readuntil(self, separator: bytes) -> bytes:
-        # Check if stack has the separator
-        if separator in self.stack:
-            index = self.stack.index(separator)
-            data = self.stack[:index + len(separator)]
-            self.stack = self.stack[index + len(separator):]
-            return data
+        try:
+            # Check if stack has the separator
+            if separator in self.stack:
+                index = self.stack.index(separator)
+                data = self.stack[:index + len(separator)]
+                self.stack = self.stack[index + len(separator):]
+                return data
 
-        # Read from the websocket until the separator is found
-        self.stack += await self.websocket.recv()
-        return await self.readuntil(separator)
+            # Read from the websocket until the separator is found
+            self.stack += await self.websocket.recv()
+            return await self.readuntil(separator)
+        except ConnectionClosed:
+            raise ConnectionResetError()
 
 async def websocket_handler(factory, websocket: WebSocketClientProtocol, path: str):
     reader = WebsocketReader(websocket)
