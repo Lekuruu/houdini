@@ -68,7 +68,12 @@ def resolve_ip_address(websocket: WebSocketClientProtocol) -> str:
     if 'X-Forwarded-For' in headers:
         return headers['X-Forwarded-For'].split(',')[0]
 
-    return websocket.remote_address[0]
+    address = websocket.remote_address
+
+    if address is None:
+        return ''
+    
+    return address[0]
 
 async def websocket_handler(factory, websocket: WebSocketClientProtocol, path: str):
     reader = WebsocketReader(websocket)
