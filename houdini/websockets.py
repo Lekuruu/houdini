@@ -32,7 +32,7 @@ class WebsocketWriter:
     
     def get_extra_info(self, name: str, default=None):
         if name == 'peername':
-            return self.websocket.remote_address
+            return resolve_ip_address(self.websocket)
         return default
 
 class WebsocketReader:
@@ -55,6 +55,20 @@ class WebsocketReader:
             return await self.readuntil(separator)
         except ConnectionClosed:
             raise ConnectionResetError()
+
+def resolve_ip_address(websocket: WebSocketClientProtocol) -> str:
+    headers = websocket.request_headers
+
+    if 'CF-Connecting-IP' in headers:
+        return headers['CF-Connecting-IP']
+
+    if 'X-Real-IP' in headers:
+        return headers['X-Real-IP'].strip()
+    
+    if 'X-Forwarded-For' in headers:
+        return headers['X-Forwarded-For'].split(',')[0]
+
+    return websocket.remote_address[0]
 
 async def websocket_handler(factory, websocket: WebSocketClientProtocol, path: str):
     reader = WebsocketReader(websocket)
